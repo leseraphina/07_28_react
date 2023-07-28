@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import AddApointment from './components/AddApointment';
+import Search from './components/Search';
+import AddInfo from './components/AddInfo';
+// import data from './data.json';
+import {BiArchiveIn} from 'react-icons/bi'
+import { useCallback, useEffect, useState } from 'react';
 
-function App() {
+export default function App(){
+  const [list,setList] = useState([]);
+  const [sortBy, setSortBy] = useState('petName');
+
+  const fetchData = useCallback(() =>{
+    fetch('./data.json')
+    .then(response => response.json())
+    .then(data => setList(data))
+  },[])
+
+  useEffect(fetchData,[fetchData]);
+  
+  const filterList = list.sort((a,b) =>{
+    return ( a[sortBy].toLowerCase() < b[sortBy].toLowerCase()? -1 :1)
+  })
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <article>
+      <h3> <BiArchiveIn /> 예약시스템</h3>
+      <AddApointment />
+      <Search />
+      <div id="list">
+        <ul>
+          {filterList.map((item) => (
+          <AddInfo key={item.id}
+                  info={item}
+                  onDelete = {(id) => setList(list.filter(item => item.id !== id))} />))}
+        </ul>
+      </div>
+    </article>
+  )
 }
-
-export default App;
